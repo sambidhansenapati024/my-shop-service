@@ -1,0 +1,8 @@
+package com.myShop.my_shop_service.service.email;
+
+import com.myShop.my_shop_service.entity.Order;
+
+public interface OrderNotificationService {
+
+    void processOrderCreated(Order order);
+}

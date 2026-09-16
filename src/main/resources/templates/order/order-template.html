@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+
+    <title>Order Details</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #222;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #666;
+        }
+
+        .order-info {
+            margin-bottom: 25px;
+        }
+
+        .order-info p {
+            margin: 6px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+
+    <h1>My Shop</h1>
+
+    <p>Grocery Order</p>
+
+</div>
+
+
+<div class="order-info">
+
+    <p>
+        <strong>Order Number:</strong>
+        <span th:text="${order.orderNumber}"></span>
+    </p>
+
+    <p>
+        <strong>Customer:</strong>
+        <span th:text="${order.customerName}"></span>
+    </p>
+
+    <p>
+        <strong>Date:</strong>
+        <span th:text="${order.createdAt}"></span>
+    </p>
+
+    <p>
+        <strong>Order Type:</strong>
+        <span th:text="${order.orderType}"></span>
+    </p>
+
+    <p>
+        <strong>Status:</strong>
+        <span th:text="${order.status}"></span>
+    </p>
+
+</div>
+
+
+<table>
+
+    <thead>
+
+    <tr>
+        <th>#</th>
+        <th>Item</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+    </tr>
+
+    </thead>
+
+
+    <tbody>
+
+    <tr th:each="item, stat : ${order.items}">
+
+        <td th:text="${stat.count}"></td>
+
+        <td th:text="${item.itemName}"></td>
+
+        <td th:text="${item.quantity}"></td>
+
+        <td th:text="${item.unit}"></td>
+
+    </tr>
+
+    </tbody>
+
+</table>
+
+
+<div class="footer">
+
+    <p>Thank you for your order.</p>
+
+</div>
+
+</body>
+
+</html>
