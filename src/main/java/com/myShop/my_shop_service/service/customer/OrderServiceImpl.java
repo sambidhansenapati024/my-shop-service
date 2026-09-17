@@ -358,15 +358,20 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderResponse convertToResponse(Order order) {
 
-        OrderResponse response =
-                new OrderResponse();
+        OrderResponse response = new OrderResponse();
 
         response.setId(order.getId());
+
         response.setOrderNumber(order.getOrderNumber());
+
         response.setUserId(order.getUser().getId());
+
         response.setOrderType(order.getOrderType());
+
         response.setStatus(order.getStatus().name());
+
         response.setPhotoPath(order.getPhotoPath());
+
         if (order.getPhotoPath() != null
                 && !order.getPhotoPath().isBlank()) {
 
@@ -376,22 +381,50 @@ public class OrderServiceImpl implements OrderService {
                     )
             );
         }
+
         response.setPhotoNote(order.getPhotoNote());
+
         response.setCreatedAt(order.getCreatedAt());
+
+
+        // BILLING FIELDS
+
+        response.setTotalAmount(order.getTotalAmount());
+
+        response.setBilledAt(order.getBilledAt());
+
+
+        // ORDER ITEMS
 
         List<OrderItemResponse> itemResponses =
                 orderItemRepository
                         .findByOrderId(order.getId())
                         .stream()
-                        .map(item ->
-                                new OrderItemResponse(
-                                        item.getId(),
-                                        item.getItemName(),
-                                        item.getQuantity(),
-                                        item.getUnit()
-                                )
-                        )
+                        .map(item -> {
+
+                            OrderItemResponse itemResponse =
+                                    new OrderItemResponse(
+                                            item.getId(),
+                                            item.getItemName(),
+                                            item.getQuantity(),
+                                            item.getUnit()
+                                    );
+
+                            // BILLING FIELDS
+
+                            itemResponse.setUnitPrice(
+                                    item.getUnitPrice()
+                            );
+
+                            itemResponse.setItemTotal(
+                                    item.getItemTotal()
+                            );
+
+                            return itemResponse;
+
+                        })
                         .toList();
+
 
         response.setItems(itemResponses);
 

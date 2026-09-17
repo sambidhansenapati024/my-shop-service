@@ -1,5 +1,7 @@
+
 package com.myShop.my_shop_service.dto.customer;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,6 +13,10 @@ public class OrderPdfData {
     private String orderType;
     private String status;
     private List<OrderItemResponse> items;
+
+    // BILLING FIELDS
+    private BigDecimal totalAmount;
+    private LocalDateTime billedAt;
 
     public OrderPdfData() {
     }
@@ -61,5 +67,21 @@ public class OrderPdfData {
 
     public void setItems(List<OrderItemResponse> items) {
         this.items = items;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public LocalDateTime getBilledAt() {
+        return billedAt;
+    }
+
+    public void setBilledAt(LocalDateTime billedAt) {
+        this.billedAt = billedAt;
     }
 }

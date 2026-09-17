@@ -13,4 +13,18 @@ public interface EmailService {
             LocalDateTime createdAt,
             byte[] pdfBytes
     );
+
+    void sendBillGeneratedEmail(
+            String to,
+            String customerName,
+            String orderNumber,
+            byte[] pdfBytes
+    );
+
+    void sendBillModifiedEmail(
+            String to,
+            String customerName,
+            String orderNumber,
+            byte[] pdfBytes
+    );
 }

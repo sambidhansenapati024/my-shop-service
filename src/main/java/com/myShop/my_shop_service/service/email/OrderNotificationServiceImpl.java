@@ -1,8 +1,8 @@
+
 package com.myShop.my_shop_service.service.email;
 
 import com.myShop.my_shop_service.dto.customer.OrderItemResponse;
 import com.myShop.my_shop_service.dto.customer.OrderPdfData;
-import com.myShop.my_shop_service.dto.customer.OrderResponse;
 import com.myShop.my_shop_service.entity.Order;
 import com.myShop.my_shop_service.entity.OrderItem;
 import com.myShop.my_shop_service.repo.OrderItemRepository;
@@ -36,66 +36,11 @@ public class OrderNotificationServiceImpl
 
         try {
 
-            OrderPdfData pdfData = new OrderPdfData();
-
-            pdfData.setOrderNumber(
-                    order.getOrderNumber()
-            );
-
-            pdfData.setCustomerName(
-                    order.getUser().getName()
-            );
-
-            pdfData.setCreatedAt(
-                    order.getCreatedAt()
-            );
-
-            pdfData.setOrderType(
-                    order.getOrderType()
-            );
-
-            pdfData.setStatus(
-                    order.getStatus().name()
-            );
-
-            List<OrderItem> orderItems =
-                    orderItemRepository.findByOrderId(
-                            order.getId()
-                    );
-
-            List<OrderItemResponse> itemResponses =
-                    orderItems.stream()
-                            .map(item -> {
-
-                                OrderItemResponse response =
-                                        new OrderItemResponse();
-
-                                response.setItemName(
-                                        item.getItemName()
-                                );
-
-                                response.setQuantity(
-                                        item.getQuantity()
-                                );
-
-                                response.setUnit(
-                                        item.getUnit()
-                                );
-
-                                return response;
-                            })
-                            .toList();
-
-            pdfData.setItems(itemResponses);
+            OrderPdfData pdfData =
+                    createPdfData(order);
 
             byte[] pdfBytes =
                     orderPdfService.generateOrderPdf(pdfData);
-
-            System.out.println(
-                    "Async order PDF generated. Size: "
-                            + pdfBytes.length
-                            + " bytes"
-            );
 
             emailService.sendOrderEmail(
                     order.getUser().getEmail(),
@@ -116,5 +61,148 @@ public class OrderNotificationServiceImpl
 
             e.printStackTrace();
         }
+    }
+
+    @Override
+    @Async
+    public void processBillGenerated(Order order) {
+
+        try {
+
+            OrderPdfData pdfData =
+                    createPdfData(order);
+
+            byte[] pdfBytes = orderPdfService.generateBillPdf(pdfData);
+
+            emailService.sendBillGeneratedEmail(
+                    order.getUser().getEmail(),
+                    order.getUser().getName(),
+                    order.getOrderNumber(),
+                    pdfBytes
+            );
+
+            System.out.println(
+                    "Bill generated notification sent for order: "
+                            + order.getOrderNumber()
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Failed to process bill generated notification: "
+                            + order.getOrderNumber()
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @Async
+    public void processBillModified(Order order) {
+
+        try {
+
+            OrderPdfData pdfData =
+                    createPdfData(order);
+
+            byte[] pdfBytes = orderPdfService.generateBillPdf(pdfData);
+
+            emailService.sendBillModifiedEmail(
+                    order.getUser().getEmail(),
+                    order.getUser().getName(),
+                    order.getOrderNumber(),
+                    pdfBytes
+            );
+
+            System.out.println(
+                    "Bill modified notification sent for order: "
+                            + order.getOrderNumber()
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Failed to process bill modified notification: "
+                            + order.getOrderNumber()
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    private OrderPdfData createPdfData(Order order) {
+
+        OrderPdfData pdfData =
+                new OrderPdfData();
+
+        pdfData.setOrderNumber(
+                order.getOrderNumber()
+        );
+
+        pdfData.setCustomerName(
+                order.getUser().getName()
+        );
+
+        pdfData.setCreatedAt(
+                order.getCreatedAt()
+        );
+
+        pdfData.setOrderType(
+                order.getOrderType()
+        );
+
+        pdfData.setStatus(
+                order.getStatus().name()
+        );
+
+        pdfData.setTotalAmount(
+                order.getTotalAmount()
+        );
+
+        pdfData.setBilledAt(
+                order.getBilledAt()
+        );
+
+        List<OrderItem> orderItems =
+                orderItemRepository.findByOrderId(
+                        order.getId()
+                );
+
+        List<OrderItemResponse> itemResponses =
+                orderItems.stream()
+                        .map(item -> {
+
+                            OrderItemResponse response =
+                                    new OrderItemResponse();
+
+                            response.setId(item.getId());
+                            response.setItemName(
+                                    item.getItemName()
+                            );
+
+                            response.setQuantity(
+                                    item.getQuantity()
+                            );
+
+                            response.setUnit(
+                                    item.getUnit()
+                            );
+
+                            response.setUnitPrice(
+                                    item.getUnitPrice()
+                            );
+
+                            response.setItemTotal(
+                                    item.getItemTotal()
+                            );
+
+                            return response;
+                        })
+                        .toList();
+
+        pdfData.setItems(itemResponses);
+
+        return pdfData;
     }
 }

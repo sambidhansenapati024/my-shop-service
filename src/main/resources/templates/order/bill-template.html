@@ -1,0 +1,348 @@
+
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+
+    <title>Grocery Invoice</title>
+
+    <style>
+
+        @page {
+            size: A4;
+            margin: 25px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #333333;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .invoice {
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #222222;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .shop-name {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .shop-subtitle {
+            font-size: 13px;
+            margin-top: 6px;
+            color: #666666;
+        }
+
+        .invoice-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .details-table td {
+            padding: 6px;
+            vertical-align: top;
+        }
+
+        .details-label {
+            font-weight: bold;
+            width: 25%;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .items-table th {
+            background-color: #eeeeee;
+            border: 1px solid #999999;
+            padding: 10px 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .items-table td {
+            border: 1px solid #999999;
+            padding: 9px 6px;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .total-section {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .total-table {
+            width: 40%;
+            margin-left: auto;
+            border-collapse: collapse;
+        }
+
+        .total-table td {
+            padding: 8px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .grand-total {
+            font-size: 16px;
+            font-weight: bold;
+            border-top: 2px solid #222222;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            border-top: 1px solid #dddddd;
+            padding-top: 15px;
+            color: #666666;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="invoice">
+
+    <!-- SHOP HEADER -->
+
+    <div class="header">
+
+        <div class="shop-name">
+            My Shop
+        </div>
+
+        <div class="shop-subtitle">
+            Grocery Store
+        </div>
+
+        <div class="invoice-title">
+            INVOICE / BILL
+        </div>
+
+    </div>
+
+
+    <!-- BILL DETAILS -->
+
+    <table class="details-table">
+
+        <tr>
+
+            <td class="details-label">
+                Order Number:
+            </td>
+
+            <td th:text="${order.orderNumber}">
+                ORD-001
+            </td>
+
+            <td class="details-label">
+                Bill Status:
+            </td>
+
+            <td th:text="${order.status}">
+                BILLED
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="details-label">
+                Customer Name:
+            </td>
+
+            <td th:text="${order.customerName}">
+                Customer
+            </td>
+
+            <td class="details-label">
+                Order Date:
+            </td>
+
+            <td th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, hh:mm a')}">
+                17 Sep 2026
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="details-label">
+                Bill Date:
+            </td>
+
+            <td th:text="${order.billedAt != null ? #temporals.format(order.billedAt, 'dd MMM yyyy, hh:mm a') : 'N/A'}">
+                17 Sep 2026
+            </td>
+
+            <td class="details-label">
+                Order Type:
+            </td>
+
+            <td th:text="${order.orderType}">
+                MANUAL
+            </td>
+
+        </tr>
+
+    </table>
+
+
+    <!-- ITEMS TABLE -->
+
+    <table class="items-table">
+
+        <thead>
+
+        <tr>
+
+            <th style="width: 8%;">
+                No.
+            </th>
+
+            <th style="width: 35%;">
+                Item Description
+            </th>
+
+            <th style="width: 12%;">
+                Quantity
+            </th>
+
+            <th style="width: 12%;">
+                Unit
+            </th>
+
+            <th style="width: 16%;">
+                Unit Price (₹)
+            </th>
+
+            <th style="width: 17%;">
+                Ordered Price (₹)
+            </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr th:each="item, itemStat : ${order.items}">
+
+            <td class="text-center"
+                th:text="${itemStat.count}">
+                1
+            </td>
+
+            <td class="text-left"
+                th:text="${item.itemName}">
+                Rice
+            </td>
+
+            <td class="text-center"
+                th:text="${item.quantity}">
+                2
+            </td>
+
+            <td class="text-center"
+                th:text="${item.unit}">
+                kg
+            </td>
+
+            <td class="text-right"
+                th:text="${item.unitPrice != null ? #numbers.formatDecimal(item.unitPrice, 1, 2) : '0.00'}">
+                60.00
+            </td>
+
+            <td class="text-right"
+                th:text="${item.itemTotal != null ? #numbers.formatDecimal(item.itemTotal, 1, 2) : '0.00'}">
+                120.00
+            </td>
+
+        </tr>
+
+        </tbody>
+
+    </table>
+
+
+    <!-- TOTAL -->
+
+    <div class="total-section">
+
+        <table class="total-table">
+
+            <tr class="grand-total">
+
+                <td>
+                    Grand Total
+                </td>
+
+                <td class="text-right"
+                    th:text="${order.totalAmount != null ? '₹ ' + #numbers.formatDecimal(order.totalAmount, 1, 2) : '₹ 0.00'}">
+                    ₹ 120.00
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        <p>
+            Thank you for shopping with My Shop!
+        </p>
+
+        <p>
+            Please keep this bill for your reference.
+        </p>
+
+        <p>
+            This is a computer-generated invoice.
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

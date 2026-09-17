@@ -1,4 +1,6 @@
+
 package com.myShop.my_shop_service.service.email;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.core.io.ByteArrayResource;
@@ -42,25 +44,10 @@ public class EmailServiceImpl implements EmailService {
 
             Context context = new Context();
 
-            context.setVariable(
-                    "customerName",
-                    customerName
-            );
-
-            context.setVariable(
-                    "orderNumber",
-                    orderNumber
-            );
-
-            context.setVariable(
-                    "orderType",
-                    orderType
-            );
-
-            context.setVariable(
-                    "status",
-                    status
-            );
+            context.setVariable("customerName", customerName);
+            context.setVariable("orderNumber", orderNumber);
+            context.setVariable("orderType", orderType);
+            context.setVariable("status", status);
 
             context.setVariable(
                     "createdAt",
@@ -77,47 +64,143 @@ public class EmailServiceImpl implements EmailService {
                             context
                     );
 
-            MimeMessage message =
-                    mailSender.createMimeMessage();
-
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(
-                            message,
-                            true,
-                            "UTF-8"
-                    );
-
-            helper.setTo(to);
-
-            helper.setSubject(
-                    "My Shop - Order " + orderNumber
-            );
-
-            helper.setText(
+            sendEmail(
+                    to,
+                    "My Shop - Order " + orderNumber,
                     emailBody,
-                    true
-            );
-
-            helper.addAttachment(
                     orderNumber + ".pdf",
-                    new ByteArrayResource(pdfBytes)
+                    pdfBytes
             );
-
-            mailSender.send(message);
 
             System.out.println(
-                    "Order email sent successfully to: "
-                            + to
+                    "Order email sent successfully to: " + to
             );
 
-        } catch (MessagingException e) {
+        } catch (Exception e) {
 
             System.err.println(
-                    "Failed to send order email to: "
-                            + to
+                    "Failed to send order email to: " + to
             );
 
             e.printStackTrace();
         }
+    }
+
+    @Override
+    @Async
+    public void sendBillGeneratedEmail(
+            String to,
+            String customerName,
+            String orderNumber,
+            byte[] pdfBytes
+    ) {
+
+        try {
+
+            Context context = new Context();
+
+            context.setVariable("customerName", customerName);
+            context.setVariable("orderNumber", orderNumber);
+
+            String emailBody =
+                    templateEngine.process(
+                            "order/email/bill-generated-email",
+                            context
+                    );
+
+            sendEmail(
+                    to,
+                    "My Shop - Bill Generated for Order " + orderNumber,
+                    emailBody,
+                    orderNumber + ".pdf",
+                    pdfBytes
+            );
+
+            System.out.println(
+                    "Bill generated email sent successfully to: " + to
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Failed to send bill generated email to: " + to
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @Async
+    public void sendBillModifiedEmail(
+            String to,
+            String customerName,
+            String orderNumber,
+            byte[] pdfBytes
+    ) {
+
+        try {
+
+            Context context = new Context();
+
+            context.setVariable("customerName", customerName);
+            context.setVariable("orderNumber", orderNumber);
+
+            String emailBody =
+                    templateEngine.process(
+                            "order/email/bill-modified-email",
+                            context
+                    );
+
+            sendEmail(
+                    to,
+                    "My Shop - Bill Modified for Order " + orderNumber,
+                    emailBody,
+                    orderNumber + ".pdf",
+                    pdfBytes
+            );
+
+            System.out.println(
+                    "Bill modified email sent successfully to: " + to
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Failed to send bill modified email to: " + to
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    private void sendEmail(
+            String to,
+            String subject,
+            String emailBody,
+            String attachmentName,
+            byte[] pdfBytes
+    ) throws MessagingException {
+
+        MimeMessage message =
+                mailSender.createMimeMessage();
+
+        MimeMessageHelper helper =
+                new MimeMessageHelper(
+                        message,
+                        true,
+                        "UTF-8"
+                );
+
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(emailBody, true);
+
+        helper.addAttachment(
+                attachmentName,
+                new ByteArrayResource(pdfBytes)
+        );
+
+        mailSender.send(message);
     }
 }

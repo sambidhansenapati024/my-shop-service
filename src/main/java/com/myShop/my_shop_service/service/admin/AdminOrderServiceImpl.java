@@ -10,6 +10,7 @@ import com.myShop.my_shop_service.entity.User;
 import com.myShop.my_shop_service.enums.OrderStatus;
 import com.myShop.my_shop_service.repo.OrderItemRepository;
 import com.myShop.my_shop_service.repo.OrderRepository;
+import com.myShop.my_shop_service.service.email.OrderNotificationService;
 import com.myShop.my_shop_service.service.s3Storage.S3StorageService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,15 +37,18 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final S3StorageService s3StorageService;
+    private final OrderNotificationService orderNotificationService;
 
     public AdminOrderServiceImpl(
             OrderRepository orderRepository,
             OrderItemRepository orderItemRepository,
-            S3StorageService s3StorageService
+            S3StorageService s3StorageService,
+            OrderNotificationService orderNotificationService
     ) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.s3StorageService = s3StorageService;
+        this.orderNotificationService = orderNotificationService;
     }
 
     @Override
@@ -526,13 +530,6 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                 orderRepository.findById(orderId)
                         .orElse(null);
 
-        if (order.getStatus() == OrderStatus.COMPLETED) {
-
-            return ApiResponse.error(
-                    400,
-                    "Order has Already Been Completed For this."
-            );
-        }
 
         if (order == null) {
 
@@ -541,6 +538,14 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                     "Order not found"
             );
         }
+        if (order.getStatus() == OrderStatus.COMPLETED) {
+
+            return ApiResponse.error(
+                    400,
+                    "Order has Already Been Completed For this."
+            );
+        }
+
 
         List<OrderItem> orderItems =
                 orderItemRepository.findByOrderId(orderId);
@@ -630,20 +635,31 @@ public class AdminOrderServiceImpl implements AdminOrderService {
 
         // Update order status
         // Set status based on whether this is a new bill or modification.
-        if (order.getStatus() == OrderStatus.BILLED
-                || order.getStatus() == OrderStatus.BILL_MODIFIED) {
+        // Check whether this is a bill modification
+        boolean billModified =
+                order.getStatus() == OrderStatus.BILLED
+                        || order.getStatus() == OrderStatus.BILL_MODIFIED;
 
+// Update order status
+        if (billModified) {
             order.setStatus(OrderStatus.BILL_MODIFIED);
-
-        } else {
-
+        }else{
             order.setStatus(OrderStatus.BILLED);
-
         }
 
         // Save all billing details
         orderItemRepository.saveAll(orderItems);
-        orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        if (billModified) {
+
+            orderNotificationService.processBillModified(savedOrder);
+
+        } else {
+
+            orderNotificationService.processBillGenerated(savedOrder);
+
+        }
 
         return ApiResponse.success(
                 200,

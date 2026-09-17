@@ -1,5 +1,6 @@
 package com.myShop.my_shop_service.dto.customer;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,6 +16,24 @@ public class OrderResponse {
     private List<OrderItemResponse> items;
     private LocalDateTime createdAt;
     private String photoUrl;
+    private BigDecimal totalAmount;
+    private LocalDateTime billedAt;
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public LocalDateTime getBilledAt() {
+        return billedAt;
+    }
+
+    public void setBilledAt(LocalDateTime billedAt) {
+        this.billedAt = billedAt;
+    }
 
 
     public OrderResponse() {
