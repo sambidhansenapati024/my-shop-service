@@ -25,6 +25,28 @@ public class OrderItem {
     @Column(nullable = false, length = 30)
     private String unit;
 
+    @Column(name = "unit_price", precision = 10, scale = 2)
+    private BigDecimal unitPrice;
+
+    @Column(name = "item_total", precision = 10, scale = 2)
+    private BigDecimal itemTotal;
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public BigDecimal getItemTotal() {
+        return itemTotal;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public void setItemTotal(BigDecimal itemTotal) {
+        this.itemTotal = itemTotal;
+    }
+
     public OrderItem() {
     }
 

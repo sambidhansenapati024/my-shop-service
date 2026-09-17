@@ -3,6 +3,7 @@ package com.myShop.my_shop_service.entity;
 import com.myShop.my_shop_service.enums.OrderStatus;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -35,6 +36,28 @@ public class Order {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "total_amount", precision = 12, scale = 2)
+    private BigDecimal totalAmount;
+
+    @Column(name = "billed_at")
+    private LocalDateTime billedAt;
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public LocalDateTime getBilledAt() {
+        return billedAt;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public void setBilledAt(LocalDateTime billedAt) {
+        this.billedAt = billedAt;
+    }
 
     public Order() {
     }
