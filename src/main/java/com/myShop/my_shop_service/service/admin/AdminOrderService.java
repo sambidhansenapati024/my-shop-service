@@ -1,5 +1,6 @@
 package com.myShop.my_shop_service.service.admin;
 
+import com.myShop.my_shop_service.dto.PaymentRequest;
 import com.myShop.my_shop_service.dto.admin.CalculateBillRequest;
 import com.myShop.my_shop_service.dto.admin.UpdateOrderStatusRequest;
 import com.myShop.my_shop_service.dto.auth.ApiResponse;
@@ -24,4 +25,5 @@ public interface AdminOrderService {
             Long orderId,
             CalculateBillRequest request
     );
+    ApiResponse<?> makePayment(Long orderId, PaymentRequest paymentRequest);
 }

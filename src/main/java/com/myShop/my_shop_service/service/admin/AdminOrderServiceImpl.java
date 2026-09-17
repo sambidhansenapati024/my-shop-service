@@ -1,5 +1,6 @@
 package com.myShop.my_shop_service.service.admin;
 
+import com.myShop.my_shop_service.dto.PaymentRequest;
 import com.myShop.my_shop_service.dto.admin.AdminOrderResponse;
 import com.myShop.my_shop_service.dto.admin.CalculateBillResponse;
 import com.myShop.my_shop_service.dto.admin.UpdateOrderStatusRequest;
@@ -8,6 +9,7 @@ import com.myShop.my_shop_service.dto.customer.OrderItemResponse;
 import com.myShop.my_shop_service.entity.Order;
 import com.myShop.my_shop_service.entity.User;
 import com.myShop.my_shop_service.enums.OrderStatus;
+import com.myShop.my_shop_service.enums.PaymentStatus;
 import com.myShop.my_shop_service.repo.OrderItemRepository;
 import com.myShop.my_shop_service.repo.OrderRepository;
 import com.myShop.my_shop_service.service.email.OrderNotificationService;
@@ -200,6 +202,19 @@ public class AdminOrderServiceImpl implements AdminOrderService {
 
         response.setBilledAt(
                 order.getBilledAt()
+        );
+
+        // PAYMENT FIELDS
+        response.setPaymentStatus(
+                order.getPaymentStatus()
+        );
+
+        response.setPaidAmount(
+                order.getPaidAmount()
+        );
+
+        response.setRemainingAmount(
+                order.getRemainingAmount()
         );
 
         List<OrderItemResponse> items =
@@ -633,6 +648,16 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         // Set billing timestamp
         order.setBilledAt(LocalDateTime.now());
 
+        BigDecimal paidAmount = order.getPaidAmount() != null
+                ? order.getPaidAmount()
+                : BigDecimal.ZERO;
+
+        BigDecimal remainingAmount = totalAmount.subtract(paidAmount);
+
+        order.setPaidAmount(paidAmount);
+        order.setRemainingAmount(remainingAmount);
+        order.setPaymentStatus(PaymentStatus.UNPAID);
+
         // Update order status
         // Set status based on whether this is a new bill or modification.
         // Check whether this is a bill modification
@@ -665,6 +690,82 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                 200,
                 "Bill generated successfully",
                 totalAmount
+        );
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<?> makePayment(
+            Long orderId,
+            PaymentRequest paymentRequest) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElse(null);
+
+        if (order == null) {
+            return ApiResponse.error(
+                    404,
+                    "Order not found"
+            );
+        }
+
+        if (order.getTotalAmount() == null) {
+            return ApiResponse.error(
+                    400,
+                    "Bill has not been generated yet"
+            );
+        }
+
+        BigDecimal paymentAmount = paymentRequest.getAmount();
+
+        if (paymentAmount == null
+                || paymentAmount.compareTo(BigDecimal.ZERO) <= 0) {
+
+            return ApiResponse.error(
+                    400,
+                    "Payment amount must be greater than zero"
+            );
+        }
+
+        BigDecimal currentPaidAmount = order.getPaidAmount() != null
+                ? order.getPaidAmount()
+                : BigDecimal.ZERO;
+
+        BigDecimal totalAmount = order.getTotalAmount();
+
+        BigDecimal newPaidAmount =
+                currentPaidAmount.add(paymentAmount);
+
+        if (newPaidAmount.compareTo(totalAmount) > 0) {
+            return ApiResponse.error(
+                    400,
+                    "Payment cannot exceed the bill amount"
+            );
+        }
+
+        BigDecimal remainingAmount =
+                totalAmount.subtract(newPaidAmount);
+
+        PaymentStatus paymentStatus;
+
+        if (remainingAmount.compareTo(BigDecimal.ZERO) == 0) {
+            paymentStatus = PaymentStatus.PAID;
+        } else if (newPaidAmount.compareTo(BigDecimal.ZERO) > 0) {
+            paymentStatus = PaymentStatus.PARTIAL;
+        } else {
+            paymentStatus = PaymentStatus.UNPAID;
+        }
+
+        order.setPaidAmount(newPaidAmount);
+        order.setRemainingAmount(remainingAmount);
+        order.setPaymentStatus(paymentStatus);
+
+        Order savedOrder = orderRepository.save(order);
+
+        return ApiResponse.success(
+                200,
+                "Payment recorded successfully",
+                convertToResponse(savedOrder)
         );
     }
 }

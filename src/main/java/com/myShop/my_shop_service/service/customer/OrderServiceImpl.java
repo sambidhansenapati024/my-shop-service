@@ -393,6 +393,20 @@ public class OrderServiceImpl implements OrderService {
 
         response.setBilledAt(order.getBilledAt());
 
+        // PAYMENT FIELDS
+
+        response.setPaymentStatus(
+                order.getPaymentStatus()
+        );
+
+        response.setPaidAmount(
+                order.getPaidAmount()
+        );
+
+        response.setRemainingAmount(
+                order.getRemainingAmount()
+        );
+
 
         // ORDER ITEMS
 

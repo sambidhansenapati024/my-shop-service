@@ -1,6 +1,7 @@
 package com.myShop.my_shop_service.entity;
 
 import com.myShop.my_shop_service.enums.OrderStatus;
+import com.myShop.my_shop_service.enums.PaymentStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -42,6 +43,40 @@ public class Order {
 
     @Column(name = "billed_at")
     private LocalDateTime billedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", nullable = false, length = 20)
+    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
+
+    @Column(name = "paid_amount", precision = 12, scale = 2, nullable = false)
+    private BigDecimal paidAmount = BigDecimal.ZERO;
+
+    @Column(name = "remaining_amount", precision = 12, scale = 2, nullable = false)
+    private BigDecimal remainingAmount = BigDecimal.ZERO;
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public BigDecimal getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(BigDecimal paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
+    public BigDecimal getRemainingAmount() {
+        return remainingAmount;
+    }
+
+    public void setRemainingAmount(BigDecimal remainingAmount) {
+        this.remainingAmount = remainingAmount;
+    }
 
     public BigDecimal getTotalAmount() {
         return totalAmount;

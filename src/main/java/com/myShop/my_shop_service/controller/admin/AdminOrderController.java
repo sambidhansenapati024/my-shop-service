@@ -1,6 +1,7 @@
 package com.myShop.my_shop_service.controller.admin;
 
 
+import com.myShop.my_shop_service.dto.PaymentRequest;
 import com.myShop.my_shop_service.dto.admin.CalculateBillRequest;
 import com.myShop.my_shop_service.dto.admin.UpdateOrderStatusRequest;
 import com.myShop.my_shop_service.dto.auth.ApiResponse;
@@ -85,6 +86,23 @@ public class AdminOrderController {
     ) {
         ApiResponse<?> response =
                 adminOrderService.generateBill(orderId, request);
+
+        return ResponseEntity
+                .status(response.getCode())
+                .body(response);
+    }
+
+    @PostMapping("/{orderId}/payment")
+    public ResponseEntity<ApiResponse<?>> makePayment(
+            @PathVariable Long orderId,
+            @Valid @RequestBody PaymentRequest request
+    ) {
+
+        ApiResponse<?> response =
+                adminOrderService.makePayment(
+                        orderId,
+                        request
+                );
 
         return ResponseEntity
                 .status(response.getCode())

@@ -1,6 +1,7 @@
 package com.myShop.my_shop_service.dto.admin;
 
 import com.myShop.my_shop_service.dto.customer.OrderItemResponse;
+import com.myShop.my_shop_service.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,6 +29,35 @@ public class AdminOrderResponse {
     // BILLING FIELDS
     private BigDecimal totalAmount;
     private LocalDateTime billedAt;
+
+    // PAYMENT FIELDS
+    private PaymentStatus paymentStatus;
+    private BigDecimal paidAmount;
+    private BigDecimal remainingAmount;
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public BigDecimal getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(BigDecimal paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
+    public BigDecimal getRemainingAmount() {
+        return remainingAmount;
+    }
+
+    public void setRemainingAmount(BigDecimal remainingAmount) {
+        this.remainingAmount = remainingAmount;
+    }
 
     public BigDecimal getTotalAmount() {
         return totalAmount;
