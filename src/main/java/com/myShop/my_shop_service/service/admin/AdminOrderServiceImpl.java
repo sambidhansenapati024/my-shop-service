@@ -793,4 +793,52 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                 convertToResponse(savedOrder)
         );
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<?> getAllBills() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !(authentication.getPrincipal() instanceof User)) {
+
+            return ApiResponse.error(
+                    401,
+                    "User is not authenticated"
+            );
+        }
+
+        User user = (User) authentication.getPrincipal();
+
+        if (user.getRole() == null
+                || !user.getRole().name().equals("ADMIN")) {
+
+            return ApiResponse.error(
+                    403,
+                    "Only shopkeeper can view bills"
+            );
+        }
+
+        List<AdminOrderResponse> responses =
+                orderRepository.findAll()
+                        .stream()
+                        .filter(order -> order.getBilledAt() != null)
+                        .sorted(
+                                (first, second) ->
+                                        second.getBilledAt()
+                                                .compareTo(
+                                                        first.getBilledAt()
+                                                )
+                        )
+                        .map(this::convertToResponse)
+                        .toList();
+
+        return ApiResponse.success(
+                200,
+                "Bills fetched successfully",
+                responses
+        );
+    }
 }

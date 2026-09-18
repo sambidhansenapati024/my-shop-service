@@ -108,4 +108,15 @@ public class AdminOrderController {
                 .status(response.getCode())
                 .body(response);
     }
+
+    @GetMapping("/bills")
+    public ResponseEntity<ApiResponse<?>> getAllBills() {
+
+        ApiResponse<?> response =
+                adminOrderService.getAllBills();
+
+        return ResponseEntity
+                .status(response.getCode())
+                .body(response);
+    }
 }

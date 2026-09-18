@@ -26,4 +26,6 @@ public interface AdminOrderService {
             CalculateBillRequest request
     );
     ApiResponse<?> makePayment(Long orderId, PaymentRequest paymentRequest);
+
+    ApiResponse<?> getAllBills();
 }
