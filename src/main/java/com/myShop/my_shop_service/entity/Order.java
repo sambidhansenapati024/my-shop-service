@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -53,6 +55,22 @@ public class Order {
 
     @Column(name = "remaining_amount", precision = 12, scale = 2, nullable = false)
     private BigDecimal remainingAmount = BigDecimal.ZERO;
+
+    @OneToMany(
+            mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Payment> payments = new ArrayList<>();
+
+    public List<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<Payment> payments) {
+        this.payments = payments;
+    }
 
     public PaymentStatus getPaymentStatus() {
         return paymentStatus;

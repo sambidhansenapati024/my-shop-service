@@ -164,6 +164,10 @@ public class OrderNotificationServiceImpl
                 order.getBilledAt()
         );
 
+        pdfData.setPaymentStatus(order.getPaymentStatus());
+        pdfData.setPaidAmount(order.getPaidAmount());
+        pdfData.setRemainingAmount(order.getRemainingAmount());
+
         List<OrderItem> orderItems =
                 orderItemRepository.findByOrderId(
                         order.getId()
@@ -204,5 +208,79 @@ public class OrderNotificationServiceImpl
         pdfData.setItems(itemResponses);
 
         return pdfData;
+    }
+
+    @Override
+    @Async
+    public void processPartialPayment(Order order) {
+
+        try {
+
+            OrderPdfData pdfData = createPdfData(order);
+
+            byte[] pdfBytes =
+                    orderPdfService.generateBillPdf(pdfData);
+
+            emailService.sendPartialPaymentEmail(
+                    order.getUser().getEmail(),
+                    order.getUser().getName(),
+                    order.getOrderNumber(),
+                    order.getTotalAmount(),
+                    order.getPaidAmount(),
+                    order.getRemainingAmount(),
+                    pdfBytes
+            );
+
+            System.out.println(
+                    "Partial payment notification sent for order: "
+                            + order.getOrderNumber()
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Failed to process partial payment notification: "
+                            + order.getOrderNumber()
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @Async
+    public void processFullPayment(Order order) {
+
+        try {
+
+            OrderPdfData pdfData = createPdfData(order);
+
+            byte[] pdfBytes =
+                    orderPdfService.generateBillPdf(pdfData);
+
+            emailService.sendFullPaymentEmail(
+                    order.getUser().getEmail(),
+                    order.getUser().getName(),
+                    order.getOrderNumber(),
+                    order.getTotalAmount(),
+                    order.getPaidAmount(),
+                    order.getRemainingAmount(),
+                    pdfBytes
+            );
+
+            System.out.println(
+                    "Full payment notification sent for order: "
+                            + order.getOrderNumber()
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Failed to process full payment notification: "
+                            + order.getOrderNumber()
+            );
+
+            e.printStackTrace();
+        }
     }
 }

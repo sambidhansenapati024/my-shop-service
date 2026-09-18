@@ -121,6 +121,25 @@
             border-top: 2px solid #222222;
         }
 
+        /* PAYMENT SUMMARY */
+
+        .payment-summary {
+            width: 40%;
+            margin-left: auto;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+
+        .payment-summary td {
+            padding: 8px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .payment-status {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
         .footer {
             margin-top: 50px;
             text-align: center;
@@ -299,9 +318,11 @@
     </table>
 
 
-    <!-- TOTAL -->
+    <!-- TOTAL AND PAYMENT SUMMARY -->
 
     <div class="total-section">
+
+        <!-- GRAND TOTAL -->
 
         <table class="total-table">
 
@@ -312,8 +333,72 @@
                 </td>
 
                 <td class="text-right"
-                    th:text="${order.totalAmount != null ? '₹ ' + #numbers.formatDecimal(order.totalAmount, 1, 2) : '₹ 0.00'}">
+                    th:text="${order.totalAmount != null
+                        ? '₹ ' + #numbers.formatDecimal(order.totalAmount, 1, 2)
+                        : '₹ 0.00'}">
+
                     ₹ 120.00
+
+                </td>
+
+            </tr>
+
+        </table>
+
+
+        <!-- PAYMENT SUMMARY -->
+
+        <table class="payment-summary">
+
+            <tr>
+
+                <td>
+                    Payment Status
+                </td>
+
+                <td class="text-right payment-status"
+                    th:text="${order.paymentStatus != null
+                        ? order.paymentStatus
+                        : 'UNPAID'}">
+
+                    UNPAID
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Paid Amount
+                </td>
+
+                <td class="text-right"
+                    th:text="${order.paidAmount != null
+                        ? '₹ ' + #numbers.formatDecimal(order.paidAmount, 1, 2)
+                        : '₹ 0.00'}">
+
+                    ₹ 0.00
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Remaining Amount
+                </td>
+
+                <td class="text-right"
+                    th:text="${order.remainingAmount != null
+                        ? '₹ ' + #numbers.formatDecimal(order.remainingAmount, 1, 2)
+                        : '₹ 0.00'}">
+
+                    ₹ 0.00
+
                 </td>
 
             </tr>

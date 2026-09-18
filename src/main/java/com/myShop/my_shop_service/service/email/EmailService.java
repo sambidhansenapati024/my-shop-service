@@ -27,4 +27,24 @@ public interface EmailService {
             String orderNumber,
             byte[] pdfBytes
     );
+
+    void sendPartialPaymentEmail(
+            String to,
+            String customerName,
+            String orderNumber,
+            java.math.BigDecimal totalAmount,
+            java.math.BigDecimal paidAmount,
+            java.math.BigDecimal remainingAmount,
+            byte[] pdfBytes
+    );
+
+    void sendFullPaymentEmail(
+            String to,
+            String customerName,
+            String orderNumber,
+            java.math.BigDecimal totalAmount,
+            java.math.BigDecimal paidAmount,
+            java.math.BigDecimal remainingAmount,
+            byte[] pdfBytes
+    );
 }

@@ -7,11 +7,13 @@ import com.myShop.my_shop_service.dto.admin.UpdateOrderStatusRequest;
 import com.myShop.my_shop_service.dto.auth.ApiResponse;
 import com.myShop.my_shop_service.dto.customer.OrderItemResponse;
 import com.myShop.my_shop_service.entity.Order;
+import com.myShop.my_shop_service.entity.Payment;
 import com.myShop.my_shop_service.entity.User;
 import com.myShop.my_shop_service.enums.OrderStatus;
 import com.myShop.my_shop_service.enums.PaymentStatus;
 import com.myShop.my_shop_service.repo.OrderItemRepository;
 import com.myShop.my_shop_service.repo.OrderRepository;
+import com.myShop.my_shop_service.repo.PaymentRepository;
 import com.myShop.my_shop_service.service.email.OrderNotificationService;
 import com.myShop.my_shop_service.service.s3Storage.S3StorageService;
 import org.springframework.security.core.Authentication;
@@ -40,17 +42,20 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     private final OrderItemRepository orderItemRepository;
     private final S3StorageService s3StorageService;
     private final OrderNotificationService orderNotificationService;
+    private final PaymentRepository paymentRepository;
 
     public AdminOrderServiceImpl(
             OrderRepository orderRepository,
             OrderItemRepository orderItemRepository,
             S3StorageService s3StorageService,
-            OrderNotificationService orderNotificationService
+            OrderNotificationService orderNotificationService,
+            PaymentRepository paymentRepository
     ) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.s3StorageService = s3StorageService;
         this.orderNotificationService = orderNotificationService;
+        this.paymentRepository = paymentRepository;
     }
 
     @Override
@@ -761,6 +766,26 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         order.setPaymentStatus(paymentStatus);
 
         Order savedOrder = orderRepository.save(order);
+
+
+        Payment payment = new Payment();
+
+        payment.setOrder(order);
+        payment.setAmount(paymentAmount);
+        payment.setPaymentMethod(paymentRequest.getPaymentMethod());
+        payment.setPaymentDate(LocalDateTime.now());
+
+        paymentRepository.save(payment);
+
+        if (paymentStatus == PaymentStatus.PAID) {
+
+            orderNotificationService.processFullPayment(savedOrder);
+
+        } else if (paymentStatus == PaymentStatus.PARTIAL) {
+
+            orderNotificationService.processPartialPayment(savedOrder);
+
+        }
 
         return ApiResponse.success(
                 200,

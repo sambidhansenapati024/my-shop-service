@@ -9,4 +9,8 @@ public interface OrderNotificationService {
     void processBillGenerated(Order order);
 
     void processBillModified(Order order);
+
+    void processPartialPayment(Order order);
+
+    void processFullPayment(Order order);
 }

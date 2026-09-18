@@ -11,8 +11,11 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -202,5 +205,138 @@ public class EmailServiceImpl implements EmailService {
         );
 
         mailSender.send(message);
+    }
+
+    @Override
+    @Async
+    public void sendPartialPaymentEmail(
+            String to,
+            String customerName,
+            String orderNumber,
+            BigDecimal totalAmount,
+            BigDecimal paidAmount,
+            BigDecimal remainingAmount,
+            byte[] pdfBytes
+    ) {
+
+        try {
+
+            Context context = new Context();
+
+            context.setVariable("customerName", customerName);
+
+            context.setVariable(
+                    "order",
+                    createPaymentEmailData(
+                            orderNumber,
+                            totalAmount,
+                            paidAmount,
+                            remainingAmount,
+                            "PARTIAL"
+                    )
+            );
+
+            String emailBody =
+                    templateEngine.process(
+                            "order/email/partial-payment",
+                            context
+                    );
+
+            sendEmail(
+                    to,
+                    "My Shop - Partial Payment for Order " + orderNumber,
+                    emailBody,
+                    orderNumber + "-partial-payment.pdf",
+                    pdfBytes
+            );
+
+            System.out.println(
+                    "Partial payment email sent successfully to: " + to
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Failed to send partial payment email to: " + to
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @Async
+    public void sendFullPaymentEmail(
+            String to,
+            String customerName,
+            String orderNumber,
+            BigDecimal totalAmount,
+            BigDecimal paidAmount,
+            BigDecimal remainingAmount,
+            byte[] pdfBytes
+    ) {
+
+        try {
+
+            Context context = new Context();
+
+            context.setVariable("customerName", customerName);
+
+            context.setVariable(
+                    "order",
+                    createPaymentEmailData(
+                            orderNumber,
+                            totalAmount,
+                            paidAmount,
+                            remainingAmount,
+                            "PAID"
+                    )
+            );
+
+            String emailBody =
+                    templateEngine.process(
+                            "order/email/full-payment",
+                            context
+                    );
+
+            sendEmail(
+                    to,
+                    "My Shop - Full Payment Received for Order " + orderNumber,
+                    emailBody,
+                    orderNumber + "-full-payment.pdf",
+                    pdfBytes
+            );
+
+            System.out.println(
+                    "Full payment email sent successfully to: " + to
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Failed to send full payment email to: " + to
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    private Map<String, Object> createPaymentEmailData(
+            String orderNumber,
+            BigDecimal totalAmount,
+            BigDecimal paidAmount,
+            BigDecimal remainingAmount,
+            String paymentStatus
+    ) {
+
+        Map<String, Object> orderData = new HashMap<>();
+
+        orderData.put("orderNumber", orderNumber);
+        orderData.put("totalAmount", totalAmount);
+        orderData.put("paidAmount", paidAmount);
+        orderData.put("remainingAmount", remainingAmount);
+        orderData.put("paymentStatus", paymentStatus);
+
+        return orderData;
     }
 }
