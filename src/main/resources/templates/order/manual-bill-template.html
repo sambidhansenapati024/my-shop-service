@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8"/>
+
+    <style>
+
+        @page {
+            size: 80mm auto;
+            margin: 4mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10px;
+            color: #111;
+            margin: 0;
+            padding: 0;
+        }
+
+        .receipt {
+            width: 100%;
+        }
+
+        .store-header {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .store-name {
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .store-subtitle {
+            font-size: 9px;
+            margin-top: 2px;
+        }
+
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 7px 0;
+        }
+
+        .bill-header {
+            width: 100%;
+        }
+
+        .bill-header td {
+            vertical-align: top;
+        }
+
+        .bill-title {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .bill-info {
+            text-align: right;
+            font-size: 9px;
+        }
+
+        .customer-section {
+            margin-top: 6px;
+            font-size: 9px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .items-table th {
+            border-bottom: 1px solid #000;
+            padding: 4px 2px;
+            font-size: 9px;
+            text-align: left;
+        }
+
+        .items-table td {
+            padding: 4px 2px;
+            vertical-align: top;
+            font-size: 9px;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .item-name {
+            width: 38%;
+        }
+
+        .item-qty {
+            width: 17%;
+        }
+
+        .item-price {
+            width: 20%;
+        }
+
+        .item-total {
+            width: 25%;
+        }
+
+        .summary {
+            margin-top: 8px;
+            width: 100%;
+        }
+
+        .summary-row {
+            width: 100%;
+            margin-bottom: 4px;
+        }
+
+        .summary-label {
+            text-align: left;
+        }
+
+        .summary-value {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .grand-total {
+            font-size: 13px;
+            font-weight: bold;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 6px 0;
+            margin-top: 5px;
+        }
+
+        .payment-section {
+            margin-top: 8px;
+        }
+
+        .payment-title {
+            font-weight: bold;
+            font-size: 10px;
+            margin-bottom: 4px;
+        }
+
+        .payment-row {
+            margin-bottom: 3px;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .paid {
+            color: #166534;
+        }
+
+        .partial {
+            color: #92400e;
+        }
+
+        .unpaid {
+            color: #b91c1c;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 8px;
+        }
+
+        .thank-you {
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="receipt">
+
+    <!-- STORE HEADER -->
+
+    <div class="store-header">
+
+        <div class="store-name">
+            MY SHOP
+        </div>
+
+        <div class="store-subtitle">
+            Grocery &amp; Daily Needs
+        </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+
+    <!-- BILL HEADER -->
+
+    <table class="bill-header">
+
+        <tr>
+
+            <td>
+
+                <div class="bill-title">
+                    BILL
+                </div>
+
+            </td>
+
+            <td class="bill-info">
+
+                <div>
+                    Bill No:
+                    <strong th:text="${bill.billNumber}">
+                        BILL-001
+                    </strong>
+                </div>
+
+                <div>
+                    Date:
+                    <span
+                            th:text="${#temporals.format(bill.createdAt, 'dd-MM-yyyy HH:mm')}"
+                    >
+                        01-01-2026 10:30
+                    </span>
+                </div>
+
+            </td>
+
+        </tr>
+
+    </table>
+
+
+    <!-- CUSTOMER -->
+
+    <div class="customer-section">
+
+        <div>
+            Customer:
+            <strong
+                    th:text="${bill.customerName != null && !#strings.isEmpty(bill.customerName)
+                    ? bill.customerName
+                    : 'Walk-in Customer'}">
+                Walk-in Customer
+            </strong>
+        </div>
+
+        <div
+                th:if="${bill.customerMobile != null && !#strings.isEmpty(bill.customerMobile)}">
+
+            Mobile:
+            <span th:text="${bill.customerMobile}">
+                9999999999
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="divider"></div>
+
+
+    <!-- ITEMS -->
+
+    <table class="items-table">
+
+        <thead>
+
+        <tr>
+
+            <th class="item-name">
+                Item
+            </th>
+
+            <th class="item-qty text-center">
+                Qty
+            </th>
+
+            <th class="item-price text-right">
+                Price
+            </th>
+
+            <th class="item-total text-right">
+                Total
+            </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr th:each="item : ${bill.items}">
+
+            <td class="item-name">
+
+                <span th:text="${item.itemName}">
+                    Rice
+                </span>
+
+            </td>
+
+            <td class="item-qty text-center">
+
+                <span th:text="${item.quantity}">
+                    2
+                </span>
+
+                <span th:text="${item.unit}">
+                    kg
+                </span>
+
+            </td>
+
+            <td class="item-price text-right">
+
+                ₹<span th:text="${#numbers.formatDecimal(item.unitPrice, 1, 2)}">
+                    100.00
+                </span>
+
+            </td>
+
+            <td class="item-total text-right">
+
+                ₹<span th:text="${#numbers.formatDecimal(item.totalPrice, 1, 2)}">
+                    200.00
+                </span>
+
+            </td>
+
+        </tr>
+
+        </tbody>
+
+    </table>
+
+
+    <!-- SUMMARY -->
+
+    <div class="summary">
+
+        <table width="100%">
+
+            <tr class="summary-row">
+
+                <td class="summary-label">
+                    Subtotal
+                </td>
+
+                <td class="summary-value">
+
+                    ₹<span
+                        th:text="${#numbers.formatDecimal(bill.subtotal, 1, 2)}">
+                        200.00
+                    </span>
+
+                </td>
+
+            </tr>
+
+
+            <tr class="grand-total">
+
+                <td>
+                    TOTAL
+                </td>
+
+                <td class="text-right">
+
+                    ₹<span
+                        th:text="${#numbers.formatDecimal(bill.totalAmount, 1, 2)}">
+                        200.00
+                    </span>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+
+    <!-- PAYMENT -->
+
+    <div class="payment-section">
+
+        <div class="payment-title">
+            Payment Details
+        </div>
+
+        <table width="100%">
+
+            <tr class="payment-row">
+
+                <td>
+                    Paid
+                </td>
+
+                <td class="text-right">
+
+                    ₹<span
+                        th:text="${#numbers.formatDecimal(bill.paidAmount, 1, 2)}">
+                        200.00
+                    </span>
+
+                </td>
+
+            </tr>
+
+
+            <tr class="payment-row">
+
+                <td>
+                    Remaining
+                </td>
+
+                <td class="text-right">
+
+                    ₹<span
+                        th:text="${#numbers.formatDecimal(bill.remainingAmount, 1, 2)}">
+                        0.00
+                    </span>
+
+                </td>
+
+            </tr>
+
+
+            <tr class="payment-row">
+
+                <td>
+                    Status
+                </td>
+
+                <td class="text-right">
+
+                    <span
+                            class="status"
+                            th:classappend="${bill.paymentStatus == 'PAID'
+                            ? ' paid'
+                            : bill.paymentStatus == 'PARTIAL'
+                            ? ' partial'
+                            : ' unpaid'}"
+                            th:text="${bill.paymentStatus}">
+                        PAID
+                    </span>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+
+    <div class="divider"></div>
+
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        <div class="thank-you">
+            Thank you for shopping with us!
+        </div>
+
+        <div>
+            Please keep this bill for your records.
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

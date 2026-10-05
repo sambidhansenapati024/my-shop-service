@@ -119,4 +119,15 @@ public class AdminOrderController {
                 .status(response.getCode())
                 .body(response);
     }
+
+    @GetMapping("/bill-management")
+    public ResponseEntity<ApiResponse<?>> getAllBillManagement() {
+
+        ApiResponse<?> response =
+                adminOrderService.getAllBillManagement();
+
+        return ResponseEntity
+                .status(response.getCode())
+                .body(response);
+    }
 }

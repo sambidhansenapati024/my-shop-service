@@ -28,4 +28,6 @@ public interface AdminOrderService {
     ApiResponse<?> makePayment(Long orderId, PaymentRequest paymentRequest);
 
     ApiResponse<?> getAllBills();
+
+    ApiResponse<?> getAllBillManagement();
 }

@@ -1,5 +1,6 @@
 package com.myShop.my_shop_service.service.admin;
 
+import com.myShop.my_shop_service.dto.BillManagementResponse;
 import com.myShop.my_shop_service.dto.PaymentRequest;
 import com.myShop.my_shop_service.dto.admin.AdminOrderResponse;
 import com.myShop.my_shop_service.dto.admin.CalculateBillResponse;
@@ -11,6 +12,7 @@ import com.myShop.my_shop_service.entity.Payment;
 import com.myShop.my_shop_service.entity.User;
 import com.myShop.my_shop_service.enums.OrderStatus;
 import com.myShop.my_shop_service.enums.PaymentStatus;
+import com.myShop.my_shop_service.repo.ManualBillRepository;
 import com.myShop.my_shop_service.repo.OrderItemRepository;
 import com.myShop.my_shop_service.repo.OrderRepository;
 import com.myShop.my_shop_service.repo.PaymentRepository;
@@ -28,14 +30,10 @@ import com.myShop.my_shop_service.entity.OrderItem;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.security.SecureRandom;
-import java.util.HexFormat;
-import java.util.Locale;
-import java.util.List;
 
 @Service
 public class AdminOrderServiceImpl implements AdminOrderService {
@@ -47,19 +45,22 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     private final S3StorageService s3StorageService;
     private final OrderNotificationService orderNotificationService;
     private final PaymentRepository paymentRepository;
+    private final ManualBillRepository manualBillRepository;
 
     public AdminOrderServiceImpl(
             OrderRepository orderRepository,
             OrderItemRepository orderItemRepository,
             S3StorageService s3StorageService,
             OrderNotificationService orderNotificationService,
-            PaymentRepository paymentRepository
+            PaymentRepository paymentRepository,
+            ManualBillRepository manualBillRepository
     ) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.s3StorageService = s3StorageService;
         this.orderNotificationService = orderNotificationService;
         this.paymentRepository = paymentRepository;
+        this.manualBillRepository = manualBillRepository;
     }
 
     @Override
@@ -879,5 +880,164 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         );
 
         return verificationCode;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<?> getAllBillManagement() {
+
+        // =========================
+        // CUSTOMER ORDER BILLS
+        // =========================
+
+        List<BillManagementResponse> bills = new ArrayList<>();
+
+        List<BillManagementResponse> orders =
+                orderRepository.findAll()
+                        .stream()
+                        .filter(order -> order.getBilledAt() != null)
+                        .map(order -> {
+
+                            BillManagementResponse response =
+                                    new BillManagementResponse();
+
+                            response.setId(order.getId());
+
+                            response.setBillNumber(
+                                    "BILL-" + order.getId()
+                            );
+
+                            response.setCustomerName(
+                                    order.getUser() != null
+                                            ? order.getUser().getName()
+                                            : "Walk-in Customer"
+                            );
+
+                            response.setCustomerMobile(
+                                    order.getUser() != null
+                                            ? order.getUser().getMobileNumber()
+                                            : null
+                            );
+
+                            response.setOrderNumber(
+                                    order.getOrderNumber()
+                            );
+
+                            response.setBillType("ORDER");
+
+                            response.setTotalAmount(
+                                    order.getTotalAmount()
+                            );
+
+                            response.setPaidAmount(
+                                    order.getPaidAmount()
+                            );
+
+                            response.setRemainingAmount(
+                                    order.getRemainingAmount()
+                            );
+
+                            response.setPaymentStatus(
+                                    order.getPaymentStatus() != null
+                                            ? order.getPaymentStatus().name()
+                                            : "UNPAID"
+                            );
+
+                            response.setBilledAt(
+                                    order.getBilledAt()
+                            );
+
+                            return response;
+                        })
+                        .toList();
+
+        bills.addAll(orders);
+
+
+        // =========================
+        // MANUAL BILLS
+        // =========================
+
+        List<BillManagementResponse> manualBills =
+                manualBillRepository.findAll()
+                        .stream()
+                        .filter(bill -> bill.getBilledAt() != null)
+                        .map(bill -> {
+
+                            BillManagementResponse response =
+                                    new BillManagementResponse();
+
+                            response.setId(bill.getId());
+
+                            response.setBillNumber(
+                                    bill.getBillNumber()
+                            );
+
+                            response.setCustomerName(
+                                    bill.getCustomerName() != null
+                                            ? bill.getCustomerName()
+                                            : "Walk-in Customer"
+                            );
+
+                            response.setCustomerMobile(
+                                    bill.getCustomerMobile()
+                            );
+
+                            response.setOrderNumber(null);
+
+                            response.setBillType("MANUAL");
+
+                            response.setTotalAmount(
+                                    bill.getTotalAmount()
+                            );
+
+                            response.setPaidAmount(
+                                    bill.getPaidAmount()
+                            );
+
+                            response.setRemainingAmount(
+                                    bill.getRemainingAmount()
+                            );
+
+                            response.setPaymentStatus(
+                                    bill.getPaymentStatus() != null
+                                            ? bill.getPaymentStatus().name()
+                                            : "UNPAID"
+                            );
+
+                            response.setBilledAt(
+                                    bill.getBilledAt()
+                            );
+
+                            return response;
+                        })
+                        .toList();
+
+        bills.addAll(manualBills);
+
+
+        // =========================
+        // SORT BY BILL DATE
+        // =========================
+
+        bills.sort(
+                Comparator.comparing(
+                        BillManagementResponse::getBilledAt,
+                        Comparator.nullsLast(
+                                Comparator.reverseOrder()
+                        )
+                )
+        );
+
+
+        // =========================
+        // RESPONSE
+        // =========================
+
+        return ApiResponse.success(
+                200,
+                "Bills fetched successfully",
+                bills
+        );
     }
 }
