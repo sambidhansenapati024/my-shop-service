@@ -173,9 +173,13 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(order);
 
         /*
-         * Save manual order items
+         * Save order items
+         *
+         * Both MANUAL and PHOTO orders can contain
+         * structured grocery items.
          */
-        if (orderType.equals("MANUAL")) {
+        if (request.getItems() != null
+                && !request.getItems().isEmpty()) {
 
             List<OrderItem> orderItems = new ArrayList<>();
 
@@ -184,12 +188,15 @@ public class OrderServiceImpl implements OrderService {
                 OrderItem orderItem = new OrderItem();
 
                 orderItem.setOrder(savedOrder);
+
                 orderItem.setItemName(
                         itemRequest.getItemName().trim()
                 );
+
                 orderItem.setQuantity(
                         itemRequest.getQuantity()
                 );
+
                 orderItem.setUnit(
                         itemRequest.getUnit().trim()
                 );
@@ -407,6 +414,10 @@ public class OrderServiceImpl implements OrderService {
                 order.getRemainingAmount()
         );
 
+        response.setVerificationCode(
+                order.getVerificationCode()
+        );
+
 
         // ORDER ITEMS
 
@@ -459,5 +470,127 @@ public class OrderServiceImpl implements OrderService {
         pdfData.setItems(items);
 
         return pdfData;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] downloadBillPdf(Long orderId) {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null
+                || !(authentication.getPrincipal()
+                instanceof User)) {
+
+            throw new RuntimeException(
+                    "User is not authenticated"
+            );
+        }
+
+        User user =
+                (User) authentication.getPrincipal();
+
+        Order order =
+                orderRepository
+                        .findByIdAndUserId(
+                                orderId,
+                                user.getId()
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Order not found"
+                                )
+                        );
+
+        if (order.getTotalAmount() == null
+                || order.getBilledAt() == null) {
+
+            throw new RuntimeException(
+                    "Bill has not been generated yet"
+            );
+        }
+
+        List<OrderItemResponse> items =
+                orderItemRepository
+                        .findByOrderId(order.getId())
+                        .stream()
+                        .map(item -> {
+
+                            OrderItemResponse response =
+                                    new OrderItemResponse(
+                                            item.getId(),
+                                            item.getItemName(),
+                                            item.getQuantity(),
+                                            item.getUnit()
+                                    );
+
+                            response.setUnitPrice(
+                                    item.getUnitPrice()
+                            );
+
+                            response.setItemTotal(
+                                    item.getItemTotal()
+                            );
+
+                            return response;
+
+                        })
+                        .toList();
+
+        OrderPdfData pdfData =
+                new OrderPdfData();
+
+        pdfData.setOrderNumber(
+                order.getOrderNumber()
+        );
+
+        pdfData.setCustomerName(
+                order.getUser().getName()
+        );
+
+        pdfData.setCreatedAt(
+                order.getCreatedAt()
+        );
+
+        pdfData.setBilledAt(
+                order.getBilledAt()
+        );
+
+        pdfData.setOrderType(
+                order.getOrderType()
+        );
+
+        pdfData.setStatus(
+                order.getStatus().name()
+        );
+
+        pdfData.setItems(items);
+
+        pdfData.setTotalAmount(
+                order.getTotalAmount()
+        );
+
+        pdfData.setPaidAmount(
+                order.getPaidAmount()
+        );
+
+        pdfData.setRemainingAmount(
+                order.getRemainingAmount()
+        );
+
+        pdfData.setPaymentStatus(
+                order.getPaymentStatus()
+        );
+
+        pdfData.setVerificationCode(
+                order.getVerificationCode()
+        );
+
+        return orderPdfService.generateBillPdf(
+                pdfData
+        );
     }
 }

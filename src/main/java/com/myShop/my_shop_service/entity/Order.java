@@ -64,6 +64,17 @@ public class Order {
     )
     private List<Payment> payments = new ArrayList<>();
 
+    @Column(name = "verification_code", unique = true, length = 30)
+    private String verificationCode;
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
     public List<Payment> getPayments() {
         return payments;
     }

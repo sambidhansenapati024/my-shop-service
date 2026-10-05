@@ -9,4 +9,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByOrderIdOrderByPaymentDateDesc(Long orderId);
 
+    List<Payment> findByOrderUserIdOrderByPaymentDateDesc(
+            Long userId
+    );
+
 }

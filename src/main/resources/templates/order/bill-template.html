@@ -1,222 +1,430 @@
-
 <!DOCTYPE html>
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
     <meta charset="UTF-8"/>
 
-    <title>Grocery Invoice</title>
+    <title>Senapati Store - Bill</title>
 
     <style>
 
+        /* =========================================================
+           PAGE
+           ========================================================= */
+
         @page {
-            size: A4;
-            margin: 25px;
+            size: 80mm auto;
+            margin: 6mm 4mm;
         }
 
         body {
             font-family: Arial, sans-serif;
-            color: #333333;
-            font-size: 12px;
+            color: #222222;
+            font-size: 10px;
             margin: 0;
             padding: 0;
         }
 
-        .invoice {
+        .bill {
             width: 100%;
         }
 
+
+        /* =========================================================
+           HEADER
+           ========================================================= */
+
         .header {
-            text-align: center;
-            border-bottom: 2px solid #222222;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            width: 100%;
+            padding-bottom: 9px;
+            border-bottom: 1px dashed #555555;
+        }
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .logo-cell {
+            width: 30%;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .logo {
+            width: 52px;
+            height: auto;
+        }
+
+        .shop-info {
+            width: 70%;
+            vertical-align: top;
+            text-align: right;
+            padding-top: 2px;
         }
 
         .shop-name {
-            font-size: 28px;
+            font-size: 18px;
             font-weight: bold;
             margin: 0;
+            letter-spacing: 0.8px;
         }
 
         .shop-subtitle {
-            font-size: 13px;
-            margin-top: 6px;
-            color: #666666;
+            font-size: 9px;
+            color: #555555;
+            margin-top: 3px;
         }
 
-        .invoice-title {
-            font-size: 20px;
+        .bill-title {
+            font-size: 12px;
             font-weight: bold;
-            margin-top: 15px;
+            margin-top: 5px;
+            letter-spacing: 0.5px;
         }
 
-        .details-table {
+
+        /* =========================================================
+           ORDER DETAILS
+           ========================================================= */
+
+        .details {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-top: 9px;
+            margin-bottom: 9px;
         }
 
-        .details-table td {
-            padding: 6px;
+        .details td {
+            padding: 3px 0;
             vertical-align: top;
         }
 
         .details-label {
             font-weight: bold;
-            width: 25%;
+            width: 38%;
         }
 
-        .items-table {
+
+        /* =========================================================
+           ITEMS
+           ========================================================= */
+
+        .items {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 7px;
         }
 
-        .items-table th {
-            background-color: #eeeeee;
-            border: 1px solid #999999;
-            padding: 10px 6px;
-            text-align: center;
+        .items th {
+            border-top: 1px solid #222222;
+            border-bottom: 1px solid #222222;
+            padding: 5px 2px;
             font-weight: bold;
+            font-size: 9px;
         }
 
-        .items-table td {
-            border: 1px solid #999999;
-            padding: 9px 6px;
+        .items td {
+            padding: 5px 2px;
+            vertical-align: top;
+            border-bottom: 1px dotted #cccccc;
+            font-size: 9px;
         }
 
-        .text-left {
+        .left {
             text-align: left;
         }
 
-        .text-center {
+        .center {
             text-align: center;
         }
 
-        .text-right {
+        .right {
             text-align: right;
         }
 
+
+        /* =========================================================
+           TOTAL
+           ========================================================= */
+
         .total-section {
-            width: 100%;
-            margin-top: 20px;
+            margin-top: 9px;
+            border-top: 1px solid #222222;
+            padding-top: 6px;
         }
 
-        .total-table {
-            width: 40%;
-            margin-left: auto;
+        .total-row {
+            width: 100%;
             border-collapse: collapse;
         }
 
-        .total-table td {
-            padding: 8px;
-            border-bottom: 1px solid #dddddd;
+        .total-row td {
+            padding: 3px 0;
         }
 
-        .grand-total {
-            font-size: 16px;
+        .grand-total td {
+            padding-top: 7px;
+            font-size: 14px;
             font-weight: bold;
             border-top: 2px solid #222222;
         }
 
-        /* PAYMENT SUMMARY */
 
-        .payment-summary {
-            width: 40%;
-            margin-left: auto;
-            margin-top: 15px;
+        /* =========================================================
+           PAYMENT
+           ========================================================= */
+
+        .payment {
+            margin-top: 9px;
+            padding-top: 7px;
+            border-top: 1px dashed #555555;
+        }
+
+        .payment-table {
+            width: 100%;
             border-collapse: collapse;
         }
 
-        .payment-summary td {
-            padding: 8px;
-            border-bottom: 1px solid #dddddd;
+        .payment-table td {
+            padding: 4px 0;
+            font-size: 9px;
         }
 
         .payment-status {
             font-weight: bold;
-            font-size: 13px;
         }
 
-        .footer {
-            margin-top: 50px;
+        .remaining {
+            font-weight: bold;
+        }
+
+
+        /* =========================================================
+           BOTTOM SECTION
+           ========================================================= */
+
+        .bottom-section {
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .bottom-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .bottom-box {
+            border: 1px solid #777777;
+            vertical-align: middle;
+            padding: 7px;
+            height: 115px;
+        }
+
+        /* LEFT BOX */
+
+        .qr-box {
+            width: 58%;
             text-align: center;
-            border-top: 1px solid #dddddd;
-            padding-top: 15px;
+        }
+
+        /* RIGHT BOX */
+
+        .stamp-box {
+            width: 42%;
+            text-align: center;
+        }
+
+
+        /* =========================================================
+           QR CODE
+           ========================================================= */
+
+        .qr-title {
+            font-size: 8px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .qr-code {
+            width: 78px;
+            height: 78px;
+        }
+
+        .verification-label {
+            margin-top: 4px;
+            font-size: 7px;
             color: #666666;
         }
 
+        .verification-code {
+            margin-top: 3px;
+            font-size: 7px;
+            font-weight: bold;
+            letter-spacing: 0.4px;
+        }
+
+        .qr-help {
+            margin-top: 3px;
+            font-size: 7px;
+            color: #777777;
+        }
+
+
+        /* =========================================================
+           PAYMENT STAMP
+           ========================================================= */
+
+        .stamp-title {
+            font-size: 8px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 7px;
+        }
+
+        .stamp {
+            width: 70px;
+            height: auto;
+        }
+
+        .stamp-status {
+            margin-top: 5px;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+
+        /* =========================================================
+           FOOTER
+           ========================================================= */
+
+        .footer {
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px dashed #555555;
+            text-align: center;
+            color: #555555;
+            font-size: 8px;
+        }
+
+        .footer p {
+            margin: 3px 0;
+        }
+
+
+        /* =========================================================
+           SMALL SCREEN / PDF SAFETY
+           ========================================================= */
+
+        .nowrap {
+            white-space: nowrap;
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
-<div class="invoice">
+<div class="bill">
 
-    <!-- SHOP HEADER -->
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
 
     <div class="header">
 
-        <div class="shop-name">
-            My Shop
-        </div>
+        <table class="header-table">
 
-        <div class="shop-subtitle">
-            Grocery Store
-        </div>
+            <tr>
 
-        <div class="invoice-title">
-            INVOICE / BILL
-        </div>
+                <!-- LOGO - LEFT -->
+
+                <td class="logo-cell">
+
+                    <img
+                            class="logo"
+                            src="file:src/main/resources/static/invoice/senapati-store-logo.png"
+                            alt="Senapati Store Logo"/>
+
+                </td>
+
+
+                <!-- SHOP INFO - RIGHT -->
+
+                <td class="shop-info">
+
+                    <div class="shop-name">
+                        Senapati Store
+                    </div>
+
+                    <div class="shop-subtitle">
+                        Grocery Store
+                    </div>
+
+                    <div class="bill-title">
+                        BILL / INVOICE
+                    </div>
+
+                </td>
+
+            </tr>
+
+        </table>
 
     </div>
 
 
-    <!-- BILL DETAILS -->
+    <!-- =========================================================
+         ORDER DETAILS
+         ========================================================= -->
 
-    <table class="details-table">
+    <table class="details">
 
         <tr>
 
             <td class="details-label">
-                Order Number:
+                Order No:
             </td>
 
             <td th:text="${order.orderNumber}">
                 ORD-001
             </td>
 
-            <td class="details-label">
-                Bill Status:
-            </td>
-
-            <td th:text="${order.status}">
-                BILLED
-            </td>
-
         </tr>
+
 
         <tr>
 
             <td class="details-label">
-                Customer Name:
+                Customer:
             </td>
 
             <td th:text="${order.customerName}">
                 Customer
             </td>
 
+        </tr>
+
+
+        <tr>
+
             <td class="details-label">
                 Order Date:
             </td>
 
             <td th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, hh:mm a')}">
-                17 Sep 2026
+                30 Sep 2026
             </td>
 
         </tr>
+
 
         <tr>
 
@@ -224,16 +432,12 @@
                 Bill Date:
             </td>
 
-            <td th:text="${order.billedAt != null ? #temporals.format(order.billedAt, 'dd MMM yyyy, hh:mm a') : 'N/A'}">
-                17 Sep 2026
-            </td>
+            <td th:text="${order.billedAt != null
+                ? #temporals.format(order.billedAt, 'dd MMM yyyy, hh:mm a')
+                : 'N/A'}">
 
-            <td class="details-label">
-                Order Type:
-            </td>
+                30 Sep 2026
 
-            <td th:text="${order.orderType}">
-                MANUAL
             </td>
 
         </tr>
@@ -241,74 +445,85 @@
     </table>
 
 
-    <!-- ITEMS TABLE -->
+    <!-- =========================================================
+         ITEMS
+         ========================================================= -->
 
-    <table class="items-table">
+    <table class="items">
 
         <thead>
 
         <tr>
 
-            <th style="width: 8%;">
-                No.
+            <th class="center" style="width: 7%;">
+                #
             </th>
 
-            <th style="width: 35%;">
-                Item Description
+            <th class="left" style="width: 36%;">
+                Item
             </th>
 
-            <th style="width: 12%;">
-                Quantity
+            <th class="center" style="width: 13%;">
+                Qty
             </th>
 
-            <th style="width: 12%;">
+            <th class="center" style="width: 12%;">
                 Unit
             </th>
 
-            <th style="width: 16%;">
-                Unit Price (₹)
+            <th class="right" style="width: 16%;">
+                Rate
             </th>
 
-            <th style="width: 17%;">
-                Ordered Price (₹)
+            <th class="right" style="width: 16%;">
+                Total
             </th>
 
         </tr>
 
         </thead>
 
+
         <tbody>
 
         <tr th:each="item, itemStat : ${order.items}">
 
-            <td class="text-center"
+            <td class="center"
                 th:text="${itemStat.count}">
                 1
             </td>
 
-            <td class="text-left"
+            <td class="left"
                 th:text="${item.itemName}">
                 Rice
             </td>
 
-            <td class="text-center"
+            <td class="center"
                 th:text="${item.quantity}">
                 2
             </td>
 
-            <td class="text-center"
+            <td class="center"
                 th:text="${item.unit}">
                 kg
             </td>
 
-            <td class="text-right"
-                th:text="${item.unitPrice != null ? #numbers.formatDecimal(item.unitPrice, 1, 2) : '0.00'}">
+            <td class="right"
+                th:text="${item.unitPrice != null
+                    ? #numbers.formatDecimal(item.unitPrice, 1, 2)
+                    : '0.00'}">
+
                 60.00
+
             </td>
 
-            <td class="text-right"
-                th:text="${item.itemTotal != null ? #numbers.formatDecimal(item.itemTotal, 1, 2) : '0.00'}">
+            <td class="right"
+                th:text="${item.itemTotal != null
+                    ? #numbers.formatDecimal(item.itemTotal, 1, 2)
+                    : '0.00'}">
+
                 120.00
+
             </td>
 
         </tr>
@@ -318,13 +533,13 @@
     </table>
 
 
-    <!-- TOTAL AND PAYMENT SUMMARY -->
+    <!-- =========================================================
+         TOTAL
+         ========================================================= -->
 
     <div class="total-section">
 
-        <!-- GRAND TOTAL -->
-
-        <table class="total-table">
+        <table class="total-row">
 
             <tr class="grand-total">
 
@@ -332,7 +547,7 @@
                     Grand Total
                 </td>
 
-                <td class="text-right"
+                <td class="right"
                     th:text="${order.totalAmount != null
                         ? '₹ ' + #numbers.formatDecimal(order.totalAmount, 1, 2)
                         : '₹ 0.00'}">
@@ -345,10 +560,16 @@
 
         </table>
 
+    </div>
 
-        <!-- PAYMENT SUMMARY -->
 
-        <table class="payment-summary">
+    <!-- =========================================================
+         PAYMENT DETAILS
+         ========================================================= -->
+
+    <div class="payment">
+
+        <table class="payment-table">
 
             <tr>
 
@@ -356,7 +577,7 @@
                     Payment Status
                 </td>
 
-                <td class="text-right payment-status"
+                <td class="right payment-status"
                     th:text="${order.paymentStatus != null
                         ? order.paymentStatus
                         : 'UNPAID'}">
@@ -374,7 +595,7 @@
                     Paid Amount
                 </td>
 
-                <td class="text-right"
+                <td class="right"
                     th:text="${order.paidAmount != null
                         ? '₹ ' + #numbers.formatDecimal(order.paidAmount, 1, 2)
                         : '₹ 0.00'}">
@@ -388,11 +609,11 @@
 
             <tr>
 
-                <td>
-                    Remaining Amount
+                <td class="remaining">
+                    Remaining
                 </td>
 
-                <td class="text-right"
+                <td class="right remaining"
                     th:text="${order.remainingAmount != null
                         ? '₹ ' + #numbers.formatDecimal(order.remainingAmount, 1, 2)
                         : '₹ 0.00'}">
@@ -408,12 +629,118 @@
     </div>
 
 
-    <!-- FOOTER -->
+    <!-- =========================================================
+         QR VERIFICATION + PAYMENT STAMP
+         ========================================================= -->
+
+    <div class="bottom-section">
+
+        <table class="bottom-table">
+
+            <tr>
+
+
+                <!-- =================================================
+                     LEFT BOX - QR VERIFICATION
+                     ================================================= -->
+
+                <td class="bottom-box qr-box">
+
+                    <div class="qr-title">
+                        BILL VERIFICATION
+                    </div>
+
+
+                    <!-- QR -->
+
+                    <img
+                            th:if="${order.qrCodeBase64 != null
+                                and !order.qrCodeBase64.isBlank()}"
+                            class="qr-code"
+                            th:src="'data:image/png;base64,' + ${order.qrCodeBase64}"
+                            alt="Bill Verification QR Code"/>
+
+
+                    <!-- VERIFICATION ID -->
+
+                    <div class="verification-label">
+                        Verification ID
+                    </div>
+
+                    <div class="verification-code"
+                         th:text="${order.verificationCode}">
+                        MS-DEMO123456
+                    </div>
+
+
+                    <!-- HELP -->
+
+                    <div class="qr-help">
+                        Scan to verify this bill
+                    </div>
+
+                </td>
+
+
+                <!-- =================================================
+                     RIGHT BOX - PAYMENT STAMP
+                     ================================================= -->
+
+                <td class="bottom-box stamp-box">
+
+                    <div class="stamp-title">
+                        PAYMENT STATUS
+                    </div>
+
+
+                    <!-- PAID -->
+
+                    <img
+                            th:if="${order.paymentStatus != null
+                                and order.paymentStatus.toString() == 'PAID'}"
+                            class="stamp"
+                            src="file:src/main/resources/static/invoice/senapati-stamp-paid.png"
+                            alt="Paid"/>
+
+
+                    <!-- PARTIALLY PAID -->
+
+                    <img
+                            th:if="${order.paymentStatus != null
+                                and order.paymentStatus.toString() == 'PARTIAL'}"
+                            class="stamp"
+                            src="file:src/main/resources/static/invoice/senapati-stamp-partially-paid.png"
+                            alt="Partially Paid"/>
+
+
+                    <!-- STATUS TEXT -->
+
+                    <div class="stamp-status"
+                         th:text="${order.paymentStatus != null
+                            ? order.paymentStatus
+                            : 'UNPAID'}">
+
+                        UNPAID
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+
+    <!-- =========================================================
+         FOOTER
+         ========================================================= -->
 
     <div class="footer">
 
         <p>
-            Thank you for shopping with My Shop!
+            Thank you for shopping with Senapati Store!
         </p>
 
         <p>
@@ -421,10 +748,11 @@
         </p>
 
         <p>
-            This is a computer-generated invoice.
+            This is a computer-generated bill.
         </p>
 
     </div>
+
 
 </div>
 

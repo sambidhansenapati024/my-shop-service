@@ -47,6 +47,7 @@ public class SecurityConfig {
 
                         // Authentication APIs are public
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/verify/**").permitAll()
 
                         // All other APIs require JWT authentication
                         .anyRequest().authenticated()
@@ -68,7 +69,7 @@ public class SecurityConfig {
                 new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-                List.of("http://localhost:4200")
+                List.of("http://localhost:4200","http://192.168.1.174:4200")
         );
 
         configuration.setAllowedMethods(

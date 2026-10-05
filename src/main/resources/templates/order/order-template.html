@@ -3,142 +3,351 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8" />
 
-    <title>Order Details</title>
+    <meta charset="UTF-8"/>
+
+    <title>Senapati Store - Order</title>
 
     <style>
+
+        @page {
+            size: A4;
+            margin: 25px;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            margin: 40px;
-            color: #222;
+            color: #333333;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
         }
+
+        .order {
+            width: 100%;
+        }
+
+        /* HEADER */
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #222222;
         }
 
-        .header h1 {
-            margin-bottom: 5px;
+        .logo {
+            width: 85px;
+            height: auto;
+            margin-bottom: 8px;
         }
 
-        .header p {
+        .shop-name {
+            font-size: 26px;
+            font-weight: bold;
             margin: 0;
-            color: #666;
+            letter-spacing: 1px;
         }
+
+        .shop-subtitle {
+            font-size: 13px;
+            color: #666666;
+            margin-top: 5px;
+        }
+
+        .document-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 14px;
+        }
+
+        /* ORDER INFORMATION */
 
         .order-info {
-            margin-bottom: 25px;
-        }
-
-        .order-info p {
-            margin: 6px 0;
-        }
-
-        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 10px;
+        .order-info td {
+            padding: 7px 5px;
+            vertical-align: top;
+        }
+
+        .label {
+            font-weight: bold;
+            width: 22%;
+        }
+
+        /* ITEMS */
+
+        .items-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .items-table th {
+            background-color: #eeeeee;
+            border: 1px solid #999999;
+            padding: 9px 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .items-table td {
+            border: 1px solid #bbbbbb;
+            padding: 9px 6px;
+        }
+
+        .text-left {
             text-align: left;
         }
 
-        th {
-            background-color: #f2f2f2;
+        .text-center {
+            text-align: center;
         }
+
+        /* STATUS */
+
+        .status-section {
+            margin-top: 25px;
+            padding: 12px;
+            border: 1px solid #cccccc;
+            background-color: #f7f7f7;
+            text-align: center;
+        }
+
+        .status-label {
+            font-size: 11px;
+            color: #666666;
+            margin-bottom: 4px;
+        }
+
+        .status {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* FOOTER */
 
         .footer {
             margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #dddddd;
             text-align: center;
-            color: #777;
-            font-size: 12px;
+            color: #777777;
+            font-size: 11px;
         }
+
+        .footer p {
+            margin: 4px 0;
+        }
+
     </style>
+
 </head>
 
 <body>
 
-<div class="header">
+<div class="order">
 
-    <h1>My Shop</h1>
+    <!-- HEADER -->
 
-    <p>Grocery Order</p>
+    <div class="header">
 
-</div>
+        <img
+                class="logo"
+                src="file:src/main/resources/static/invoice/senapati-store-logo.png"
+                alt="Senapati Store Logo"/>
 
+        <div class="shop-name">
+            Senapati Store
+        </div>
 
-<div class="order-info">
+        <div class="shop-subtitle">
+            Grocery Store
+        </div>
 
-    <p>
-        <strong>Order Number:</strong>
-        <span th:text="${order.orderNumber}"></span>
-    </p>
+        <div class="document-title">
+            ORDER DETAILS
+        </div>
 
-    <p>
-        <strong>Customer:</strong>
-        <span th:text="${order.customerName}"></span>
-    </p>
-
-    <p>
-        <strong>Date:</strong>
-        <span th:text="${order.createdAt}"></span>
-    </p>
-
-    <p>
-        <strong>Order Type:</strong>
-        <span th:text="${order.orderType}"></span>
-    </p>
-
-    <p>
-        <strong>Status:</strong>
-        <span th:text="${order.status}"></span>
-    </p>
-
-</div>
+    </div>
 
 
-<table>
+    <!-- ORDER INFORMATION -->
 
-    <thead>
+    <table class="order-info">
 
-    <tr>
-        <th>#</th>
-        <th>Item</th>
-        <th>Quantity</th>
-        <th>Unit</th>
-    </tr>
+        <tr>
 
-    </thead>
+            <td class="label">
+                Order Number:
+            </td>
+
+            <td th:text="${order.orderNumber}">
+                ORD-001
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="label">
+                Customer:
+            </td>
+
+            <td th:text="${order.customerName}">
+                Customer
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="label">
+                Order Date:
+            </td>
+
+            <td th:text="${order.createdAt}">
+                30 Sep 2026
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="label">
+                Order Type:
+            </td>
+
+            <td th:text="${order.orderType}">
+                MANUAL
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="label">
+                Status:
+            </td>
+
+            <td th:text="${order.status}">
+                RECEIVED
+            </td>
+
+        </tr>
+
+    </table>
 
 
-    <tbody>
+    <!-- ITEMS -->
 
-    <tr th:each="item, stat : ${order.items}">
+    <div class="items-title">
+        Ordered Items
+    </div>
 
-        <td th:text="${stat.count}"></td>
+    <table class="items-table">
 
-        <td th:text="${item.itemName}"></td>
+        <thead>
 
-        <td th:text="${item.quantity}"></td>
+        <tr>
 
-        <td th:text="${item.unit}"></td>
+            <th style="width: 8%;">
+                #
+            </th>
 
-    </tr>
+            <th style="width: 52%;">
+                Item
+            </th>
 
-    </tbody>
+            <th style="width: 20%;">
+                Quantity
+            </th>
 
-</table>
+            <th style="width: 20%;">
+                Unit
+            </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr th:each="item, stat : ${order.items}">
+
+            <td class="text-center"
+                th:text="${stat.count}">
+                1
+            </td>
+
+            <td class="text-left"
+                th:text="${item.itemName}">
+                Rice
+            </td>
+
+            <td class="text-center"
+                th:text="${item.quantity}">
+                2
+            </td>
+
+            <td class="text-center"
+                th:text="${item.unit}">
+                kg
+            </td>
+
+        </tr>
+
+        </tbody>
+
+    </table>
 
 
-<div class="footer">
+    <!-- ORDER STATUS -->
 
-    <p>Thank you for your order.</p>
+    <div class="status-section">
+
+        <div class="status-label">
+            ORDER STATUS
+        </div>
+
+        <div class="status"
+             th:text="${order.status}">
+            RECEIVED
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        <p>
+            Thank you for ordering from Senapati Store.
+        </p>
+
+        <p>
+            Your order has been received successfully.
+        </p>
+
+        <p>
+            The shopkeeper will prepare your order and update the bill.
+        </p>
+
+        <p>
+            This is a computer-generated order document.
+        </p>
+
+    </div>
 
 </div>
 

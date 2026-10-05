@@ -23,6 +23,15 @@ public class OrderResponse {
     private PaymentStatus paymentStatus;
     private BigDecimal paidAmount;
     private BigDecimal remainingAmount;
+    private String verificationCode;
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
 
     public PaymentStatus getPaymentStatus() {
         return paymentStatus;

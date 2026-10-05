@@ -32,12 +32,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
+import java.security.SecureRandom;
+import java.util.HexFormat;
+import java.util.Locale;
 import java.util.List;
 
 @Service
 public class AdminOrderServiceImpl implements AdminOrderService {
 
+
+    private final SecureRandom secureRandom = new SecureRandom();
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final S3StorageService s3StorageService;
@@ -653,6 +657,15 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         // Set billing timestamp
         order.setBilledAt(LocalDateTime.now());
 
+        // Generate verification code only for the first bill
+        if (order.getVerificationCode() == null
+                || order.getVerificationCode().isBlank()) {
+
+            order.setVerificationCode(
+                    generateUniqueVerificationCode()
+            );
+        }
+
         BigDecimal paidAmount = order.getPaidAmount() != null
                 ? order.getPaidAmount()
                 : BigDecimal.ZERO;
@@ -840,5 +853,31 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                 "Bills fetched successfully",
                 responses
         );
+    }
+
+    private String generateVerificationCode() {
+
+        byte[] bytes = new byte[8];
+
+        secureRandom.nextBytes(bytes);
+
+        return "MS-"
+                + HexFormat.of()
+                .formatHex(bytes)
+                .toUpperCase(Locale.ROOT);
+    }
+
+    private String generateUniqueVerificationCode() {
+
+        String verificationCode;
+
+        do {
+            verificationCode = generateVerificationCode();
+        } while (
+                orderRepository
+                        .existsByVerificationCode(verificationCode)
+        );
+
+        return verificationCode;
     }
 }

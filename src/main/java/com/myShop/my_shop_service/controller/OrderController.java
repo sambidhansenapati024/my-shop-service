@@ -4,6 +4,9 @@ import com.myShop.my_shop_service.dto.auth.ApiResponse;
 import com.myShop.my_shop_service.dto.customer.CreateOrderRequest;
 import com.myShop.my_shop_service.service.customer.OrderService;
 import jakarta.validation.Valid;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,5 +66,32 @@ public class OrderController {
         return ResponseEntity
                 .status(response.getCode())
                 .body(response);
+    }
+
+    @GetMapping("/{orderId}/bill-pdf")
+    public ResponseEntity<byte[]> downloadBillPdf(
+            @PathVariable Long orderId
+    ) {
+
+        byte[] pdf =
+                orderService.downloadBillPdf(orderId);
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition
+                                .attachment()
+                                .filename(
+                                        "bill-" +
+                                                orderId +
+                                                ".pdf"
+                                )
+                                .build()
+                                .toString()
+                )
+                .contentType(
+                        MediaType.APPLICATION_PDF
+                )
+                .body(pdf);
     }
 }

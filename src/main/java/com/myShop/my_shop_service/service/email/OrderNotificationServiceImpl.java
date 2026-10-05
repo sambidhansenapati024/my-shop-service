@@ -7,15 +7,18 @@ import com.myShop.my_shop_service.entity.Order;
 import com.myShop.my_shop_service.entity.OrderItem;
 import com.myShop.my_shop_service.repo.OrderItemRepository;
 import com.myShop.my_shop_service.service.customer.OrderPdfService;
+import com.myShop.my_shop_service.service.verification.QrCodeService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.List;
 
 @Service
 public class OrderNotificationServiceImpl
         implements OrderNotificationService {
 
+    private final QrCodeService qrCodeService;
     private final OrderPdfService orderPdfService;
     private final EmailService emailService;
     private final OrderItemRepository orderItemRepository;
@@ -23,11 +26,13 @@ public class OrderNotificationServiceImpl
     public OrderNotificationServiceImpl(
             OrderPdfService orderPdfService,
             EmailService emailService,
-            OrderItemRepository orderItemRepository
+            OrderItemRepository orderItemRepository,
+            QrCodeService qrCodeService
     ) {
         this.orderPdfService = orderPdfService;
         this.emailService = emailService;
         this.orderItemRepository = orderItemRepository;
+        this.qrCodeService = qrCodeService;
     }
 
     @Override
@@ -167,6 +172,29 @@ public class OrderNotificationServiceImpl
         pdfData.setPaymentStatus(order.getPaymentStatus());
         pdfData.setPaidAmount(order.getPaidAmount());
         pdfData.setRemainingAmount(order.getRemainingAmount());
+        pdfData.setVerificationCode(
+                order.getVerificationCode()
+        );
+
+        if (order.getVerificationCode() != null
+                && !order.getVerificationCode().isBlank()) {
+
+            String verificationUrl =
+                    "http://192.168.1.174:4200/verify/"
+                            + order.getVerificationCode();
+
+            byte[] qrCode =
+                    qrCodeService.generateQrCode(
+                            verificationUrl,
+                            200,
+                            200
+                    );
+
+            pdfData.setQrCodeBase64(
+                    Base64.getEncoder()
+                            .encodeToString(qrCode)
+            );
+        }
 
         List<OrderItem> orderItems =
                 orderItemRepository.findByOrderId(

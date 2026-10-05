@@ -26,6 +26,26 @@ public class OrderPdfData {
 
     private BigDecimal remainingAmount;
 
+    private String verificationCode;
+
+    private String qrCodeBase64;
+
+    public String getQrCodeBase64() {
+        return qrCodeBase64;
+    }
+
+    public void setQrCodeBase64(String qrCodeBase64) {
+        this.qrCodeBase64 = qrCodeBase64;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
     public PaymentStatus getPaymentStatus() {
         return paymentStatus;
     }

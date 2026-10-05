@@ -15,4 +15,6 @@ public interface OrderService {
     ApiResponse<?> getOrderById(Long orderId);
 
     ApiResponse<?> getAllOrders();
+
+    byte[] downloadBillPdf(Long orderId);
 }
